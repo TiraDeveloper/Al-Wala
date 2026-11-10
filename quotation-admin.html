@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>شركة الوعلة | إدارة عروض الأسعار</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Cairo', sans-serif; background-color: #0F172A; }
+    html { scroll-behavior: smooth; }
+
+    .grid-bg {
+      background-image:
+        linear-gradient(#1e293b 1px, transparent 1px),
+        linear-gradient(90deg, #1e293b 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+
+    .glass {
+      background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(16px);
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+      opacity: .85;
+      cursor: pointer;
+    }
+
+    .section-panel { display: none; }
+    .section-panel.active { display: block; }
+
+    .tab-btn.active {
+      background-color: #dc2626;
+      color: white;
+      border-color: #dc2626;
+      box-shadow: 0 10px 20px rgba(220,38,38,.2);
+    }
+
+    .print-only { display: none; }
+
+    @page {
+      size: A4;
+      margin: 0;
+    }
+
+    .pdf-sheet {
+      width: 210mm;
+      min-height: 297mm;
+      background: #fff;
+      color: #111;
+      margin: 0 auto;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pdf-break {
+      page-break-after: always;
+      break-after: page;
+    }
+
+    .pdf-img-page img {
+      width: 210mm;
+      height: 297mm;
+      object-fit: cover;
+      display: block;
+    }
+
+    .pdf-content-page {
+      padding: 14mm 10mm 12mm;
+      background: #fff;
+      color: #111;
+    }
+
+    .quote-title {
+      text-align: center;
+      font-size: 20px;
+      font-weight: 900;
+      margin-bottom: 14px;
+    }
+
+    .quote-info-table,
+    .quote-items-table,
+    .quote-summary-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .quote-info-table td,
+    .quote-items-table th,
+    .quote-items-table td,
+    .quote-summary-table td {
+      border: 1px solid #111;
+      padding: 8px 10px;
+      font-size: 13px;
+      vertical-align: middle;
+    }
+
+    .quote-info-table td.label {
+      font-weight: 800;
+      background: #f5f5f5;
+      width: 16%;
+      white-space: nowrap;
+    }
+
+    .quote-info-table td.value {
+      width: 17%;
+    }
+
+    .quote-items-table th {
+      background: #111;
+      color: #fff;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .quote-items-table td {
+      text-align: center;
+    }
+
+    .quote-items-table td.desc {
+      text-align: right;
+      line-height: 1.7;
+    }
+
+    .summary-wrap {
+      display: flex;
+      justify-content: flex-start;
+      margin-top: 18px;
+    }
+
+    .quote-summary-table {
+      width: 320px;
+    }
+
+    .quote-summary-table td.label {
+      background: #111;
+      color: #fff;
+      font-weight: 900;
+      width: 55%;
+    }
+
+    .quote-summary-table td.value {
+      background: #fff;
+      color: #111;
+      font-weight: 900;
+      text-align: center;
+      width: 45%;
+    }
+
+    .quote-summary-table tr.total td.label,
+    .quote-summary-table tr.total td.value {
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    @media print {
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+      body {
+        background: #fff !important;
+        color: #111 !important;
+      }
+    }
+  </style>
+</head>
+<body class="text-white overflow-x-hidden">
+
+  <div class="fixed inset-0 grid-bg opacity-[0.08] pointer-events-none no-print"></div>
+  <div class="fixed top-0 right-0 w-[520px] h-[520px] bg-red-600/10 blur-[130px] rounded-full pointer-events-none no-print"></div>
+  <div class="fixed bottom-0 left-0 w-[420px] h-[420px] bg-red-700/10 blur-[120px] rounded-full pointer-events-none no-print"></div>
+
+  <header class="no-print sticky top-0 z-50 border-b border-slate-800/80 bg-[#0F172A]/90 backdrop-blur-xl">
+    <div class="container mx-auto px-6 lg:px-10 py-4 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <img src="لوقو الوعله (1).png" alt="شركة الوعلة" class="h-12 sm:h-14 w-auto object-contain">
+        <div>
+          <p class="text-white font-black text-lg">لوحة إدارة عروض الأسعار</p>
+          <p class="text-slate-400 text-xs">Quotation Admin Dashboard</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="px-5 py-3 rounded-xl border border-slate-700 hover:border-red-600 text-slate-200 hover:text-white transition-all font-bold text-sm">
+          العودة للرئيسية
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="py-10 lg:py-14 no-print">
+    <div class="container mx-auto px-6 lg:px-10">
+
+      <div class="glass border border-slate-800 rounded-[2rem] p-6 lg:p-8 shadow-2xl mb-8">
+        <div class="inline-flex items-center gap-2 bg-red-600/10 border border-red-600/20 px-4 py-2 rounded-full mb-4">
+          <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+          <span class="text-red-400 text-xs font-black tracking-[0.2em] uppercase">Dashboard Controls</span>
+        </div>
+
+        <h1 class="text-3xl lg:text-4xl font-black text-white mb-3">إدارة الأصناف وعروض الأسعار</h1>
+        <p class="text-slate-400 leading-loose text-sm lg:text-base max-w-3xl">
+          من هنا يمكنك إضافة الأصناف وحفظها، ثم إنشاء عروض أسعار باستخدام الأصناف المحفوظة، وأخيرًا متابعة جميع العروض في قسم التقارير.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+          <button class="tab-btn active w-full px-5 py-4 rounded-2xl border border-slate-700 bg-slate-900/60 text-slate-200 font-black transition-all" data-target="items-section">
+            إضافة أصناف
+          </button>
+          <button class="tab-btn w-full px-5 py-4 rounded-2xl border border-slate-700 bg-slate-900/60 text-slate-200 font-black transition-all" data-target="quotes-section">
+            إضافة عرض سعر
+          </button>
+          <button class="tab-btn w-full px-5 py-4 rounded-2xl border border-slate-700 bg-slate-900/60 text-slate-200 font-black transition-all" data-target="reports-section">
+            تقارير عروض الأسعار
+          </button>
+        </div>
+      </div>
+
+      <!-- إضافة أصناف -->
+      <section id="items-section" class="section-panel active">
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+          <div class="xl:col-span-5">
+            <div class="glass border border-slate-800 rounded-[2rem] p-6 lg:p-8 shadow-2xl">
+              <h2 class="text-2xl font-black text-white mb-6">إضافة صنف جديد</h2>
+
+              <form id="itemForm" class="space-y-5">
+                <div>
+                  <label class="block text-xs font-bold text-slate-400 mb-2">رقم الصنف</label>
+                  <input id="itemCode" type="text" readonly placeholder="يُنشأ تلقائيًا" class="w-full bg-slate-800/70 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none">
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-slate-400 mb-2">اسم الصنف</label>
+                  <input id="itemName" type="text" placeholder="اسم الصنف" class="w-full bg-[#0F172A] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-red-500">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-2">الوحدة</label>
+                    <input id="itemUnit" type="text" placeholder="مثال: قطعة" class="w-full bg-[#0F172A] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-red-500">
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-2">الكمية</label>
+                    <input id="itemQty" type="number" step="0.01" placeholder="0" class="w-full bg-[#0F172A] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-red-500">
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-2">السعر</label>
+                    <input id="itemPrice" type="number" step="0.01" placeholder="0.00" class="w-full bg-[#0F172A] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-red-500">
+                  </div>
+                </div>
+
+                <div class="flex gap-3">
+                  <button type="submit" id="itemSubmitBtn" class="px-6 py-3 bg-red-600 hover:bg-red-700 rounded-xl font-black">
+                    حفظ الصنف
+                  </button>
+                  <button type="button" id="resetItemForm" class="px-6 py-3 border border-slate-700 hover:border-red-600 rounded-xl font-bold text-slate-200">
+                    تفريغ الحقول
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="xl:col-span-7">
+            <div class="glass border border-slate-800 rounded-[2rem] p-6 lg:p-8 shadow-2xl">
+              <div class="flex items-center justify-between gap-4 mb-6">
+                <div>
+                  <h2 class="text-2xl font-black text-white">الأصناف المحفوظة</h2>
+                  <p class="text-slate-400 text-sm mt-1">هذه الأصناف ستظهر لاحقًا داخل إنشاء عرض السعر.</p>
+                </div>
+                <button id="clearItemsBtn" class="px-5 py-3 border border-slate-700 hover:border-red-600 rounded-xl font-bold text-slate-200">
+                  حذف جميع الأصناف
+                </button>
+              </div>
+
+              <div class="overflow-x-auto rounded-[1.5rem] border border-slate-800">
+                <table class="w-full min-w-[760px] text-sm">
+                  <thead class="bg-slate-900/80">
+                    <tr class="text-right">
+                      <th class="px-4 py-4 text-slate-300 font-black">رقم الصنف</th>
+                      <th class="px-4 py-4 text-slate-300 font-black">اسم الصنف</th>
+                      <th class="px-4 py-4 text-slate-300 font-black">الوحدة</th>
+                      <th class="px-4 py-4 text-slate-300 font-black">الكمية</th>
+                      <th class="px-4 py-4 text-slate-300 font-black">السعر</th>
+                      <th class="px-4 py-4 text-slate-300 font-black">إجراءات</th>
+                    </tr>
+                  </thead>
+                  <tbody id="itemsTableBody" class="divide-y divide-slate-800">
+                    <tr>
+                      <td colspan="6" class="px-4 py-8 text-center text-slate-500">لا توجد أصناف محفوظة</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- إضافة عرض سعر -->
+      <section id="quotes-section" class="section-panel">
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+          <div class="xl:col-span-5">
+            <div class="glass border border-slate-800 rounded-[2rem] p-6 lg:p-8 shadow-2xl sticky top-24">
+              <div class="flex items-center justify-between gap-4 mb-6">
+                <h2 class="text-2xl font-black text-white">إضافة عرض سعر</h2>
+                <span id="quoteModeBadge" class="text-xs font-black px-3 py-2 rounded-full bg-slate-800 border border-slate-700 text-slate-300">
+                  وضع الإضافة
+                </span>
+              </div>
+
+              <form id="quoteForm" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-2">رقم العرض</label>
+                    <input id="quoteNumber" type="text" readonly class="w-full bg-slate-800/70 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none">
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-2">التاريخ</label>
+                    <input id="quoteDate" type="date" class="w-full bg-[#0F172A] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500">
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-2">اسم العميل <span class="text-red-400">*</span></label>
+                    <input id="clientName" type="text" required placeholder="اسم العميل" class="w-full bg-[#0F172A] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-red-500">
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-2">اسم المهندس</label>
+                    <input id="engineerName" type="text" placeholder="اسم المهندس" class="w-full bg-[#0F172A] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-red-500">
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-2">رقم الجوال <span class="text-red-400">*</span></label>
+                    <input id="clientPhone" type="text" required placeholder="رقم الجوال" class="w-full bg-[#0F172A] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-red-500">
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-2">الرقم المرجعي <span class="text-red-400">*</span></label>
+                    <input id="referenceNumber" type="text" required placeholder="مثال: 00101" class="w-full bg-[#0F172A] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-red-500">
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-2">اسم المشروع <span class="text-red-400">*</span></label>
+                    <input id="projectName" type="text" required placeholder="اسم المشروع" class="w-full bg-[#0F172A] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-red-500">
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-2">موقع المشروع <span class="text-red-400">*</span></label>
+                    <input id="projectLocation" type="text" required placeholder="موقع المشروع" class="w-full bg-[#0F172A] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-red-500">
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-2">نسبة الضريبة %</label>
+                    <input id="vatRate" type="number" step="0.01" class="w-full bg-[#0F172A] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500">
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-2">الخصم</label>
+                    <input id="discountValue" type="number" step="0.01" placeholder="0.00" class="w-full bg-[#0F172A] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-red-500">
+                  </div>
+                </div>
+
+                <div class="border-t border-slate-800 pt-6 space-y-4">
+                  <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-lg font-black text-white">إضافة صنف إلى العرض</h3>
+                    <button type="button" id="addSelectedItemBtn" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-xl text-sm font-black">
+                      إضافة إلى العرض
+                    </button>
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-2">اختر الصنف المحفوظ / اكتب بجانبه</label>
+                    <input id="savedItemInput" list="savedItemsDatalist" placeholder="اختر صنفًا محفوظًا ثم عدّل النص إذا أردت" class="w-full bg-[#0F172A] border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-red-500">
+                    <datalist id="savedItemsDatalist"></datalist>
+                  </div>
+                </div>
+
+                <div class="flex flex-wrap gap-3 pt-2">
+                  <button type="button" id="saveQuoteBtn" class="px-6 py-3 bg-red-600 hover:bg-red-700 rounded-xl font-black">
+                    حفظ عرض السعر
+                  </button>
+                  <button type="button" id="printQuoteBtn" class="px-6 py-3 border border-slate-700 hover:border-red-600 rounded-xl font-bold text-slate-200">
+                    طباعة / PDF
+                  </button>
+                  <button type="button" id="resetQuoteFormBtn" class="px-6 py-3 border border-slate-700 hover:border-red-600 rounded-xl font-bold text-slate-200">
+                    تفريغ الكل
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="xl:col-span-7">
+            <div class="glass border border-slate-800 rounded-[2rem] overflow-hidden shadow-2xl">
+              <div class="border-b border-slate-800 bg-slate-900/70 px-6 lg:px-8 py-6">
+                <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+                  <div class="flex items-center gap-4">
+                    <img src="لوقو الوعله (1).png" alt="شركة الوعلة" class="h-14 w-auto object-contain">
+                    <div>
+                      <h2 class="text-2xl font-black text-white">شركة الوعلة للأمن والسلامة</h2>
+                      <p class="text-slate-400 text-sm">عرض سعر</p>
+                    </div>
+                  </div>
+
+                  <div class="text-right lg:text-left">
+                    <p class="text-slate-500 text-xs uppercase tracking-[0.25em] mb-2">رقم العرض</p>
+                    <p id="previewQuoteNumber" class="text-white font-black text-2xl">-</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-6 lg:p-8 space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5">
+                    <p class="text-slate-500 text-xs mb-2">التاريخ</p>
+                    <p id="previewQuoteDate" class="text-white font-black">-</p>
+                  </div>
+                  <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5">
+                    <p class="text-slate-500 text-xs mb-2">اسم العميل</p>
+                    <p id="previewClientName" class="text-white font-black">-</p>
+                  </div>
+                  <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5">
+                    <p class="text-slate-500 text-xs mb-2">اسم المشروع</p>
+                    <p id="previewProjectName" class="text-white font-black">-</p>
+                  </div>
+                </div>
+
+                <div class="overflow-x-auto rounded-[1.5rem] border border-slate-800">
+                  <table class="w-full min-w-[900px] text-sm">
+                    <thead class="bg-slate-900/80">
+                      <tr class="text-right">
+                        <th class="px-4 py-4 text-slate-300 font-black">رقم الصنف</th>
+                        <th class="px-4 py-4 text-slate-300 font-black">اسم الصنف</th>
+                        <th class="px-4 py-4 text-slate-300 font-black">الوحدة</th>
+                        <th class="px-4 py-4 text-slate-300 font-black">الكمية</th>
+                        <th class="px-4 py-4 text-slate-300 font-black">السعر</th>
+                        <th class="px-4 py-4 text-slate-300 font-black">الإجمالي</th>
+                        <th class="px-4 py-4 text-slate-300 font-black">إجراء</th>
+                      </tr>
+                    </thead>
+                    <tbody id="previewQuoteItemsBody" class="divide-y divide-slate-800">
+                      <tr>
+                        <td colspan="7" class="px-4 py-8 text-center text-slate-500">لا توجد أصناف في العرض</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="flex justify-end">
+                  <div class="w-full max-w-md bg-slate-900/80 border border-slate-800 rounded-[1.5rem] p-6">
+                    <h3 class="text-xl font-black text-white mb-5">الملخص المالي</h3>
+
+                    <div class="space-y-4 text-sm">
+                      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <span class="text-slate-400">السعر الكلي</span>
+                        <span id="previewSubtotal" class="font-black text-white">0.00 ريال</span>
+                      </div>
+
+                      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <span class="text-slate-400">الخصم</span>
+                        <span id="previewDiscount" class="font-black text-white">0.00 ريال</span>
+                      </div>
+
+                      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <span class="text-slate-400">المبلغ بعد الخصم</span>
+                        <span id="previewAfterDiscount" class="font-black text-white">0.00 ريال</span>
+                      </div>
+
+                      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <span class="text-slate-400">الضريبة <span id="previewVatRateLabel">15</span>%</span>
+                        <span id="previewVat" class="font-black text-white">0.00 ريال</span>
+                      </div>
+
+                      <div class="flex items-center justify-between pt-2">
+                        <span class="text-red-400 font-black text-base">الإجمالي النهائي</span>
+                        <span id="previewGrandTotal" class="font-black text-2xl text-red-500">0.00 ريال</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- تقارير عروض الأسعار -->
+      <section id="reports-section" class="section-panel">
+        <div class="glass border border-slate-800 rounded-[2rem] p-6 lg:p-8 shadow-2xl">
+          <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6">
+            <div>
+              <h2 class="text-2xl font-black text-white">تقارير عروض الأسعار</h2>
+              <p class="text-slate-400 text-sm mt-1">كل عروض الأسعار المحفوظة تظهر هنا.</p>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto rounded-[1.5rem] border border-slate-800">
+            <table class="w-full min-w-[1080px] text-sm">
+              <thead class="bg-slate-900/80">
+                <tr class="text-right">
+                  <th class="px-4 py-4 text-slate-300 font-black">رقم العرض</th>
+                  <th class="px-4 py-4 text-slate-300 font-black">العميل</th>
+                  <th class="px-4 py-4 text-slate-300 font-black">المشروع</th>
+                  <th class="px-4 py-4 text-slate-300 font-black">التاريخ</th>
+                  <th class="px-4 py-4 text-slate-300 font-black">عدد الأصناف</th>
+                  <th class="px-4 py-4 text-slate-300 font-black">الخصم</th>
+                  <th class="px-4 py-4 text-slate-300 font-black">الإجمالي</th>
+                  <th class="px-4 py-4 text-slate-300 font-black">إجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="reportsTableBody" class="divide-y divide-slate-800">
+                <tr>
+                  <td colspan="8" class="px-4 py-8 text-center text-slate-500">لا توجد عروض أسعار محفوظة</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- PRINT ONLY -->
+  <div class="print-only">
+    <section class="pdf-sheet pdf-img-page pdf-break">
+      <img src="quote_page_1.png" alt="غلاف عرض السعر">
+    </section>
+
+    <section class="pdf-sheet pdf-img-page pdf-break">
+      <img src="quote_page_2.png" alt="خطاب عرض السعر">
+    </section>
+
+    <section class="pdf-sheet pdf-content-page pdf-break">
+      <div class="quote-title">جدول عرض السعر</div>
+
+      <table class="quote-info-table">
+        <tr>
+          <td class="label">التاريخ</td>
+          <td class="value" id="printQuoteDate">-</td>
+          <td class="label">اسم المهندس</td>
+          <td class="value" id="printEngineerName">-</td>
+        </tr>
+        <tr>
+          <td class="label">اسم العميل</td>
+          <td class="value" id="printClientName">-</td>
+          <td class="label">رقم الجوال</td>
+          <td class="value" id="printClientPhone">-</td>
+        </tr>
+        <tr>
+          <td class="label">اسم المشروع</td>
+          <td class="value" id="printProjectName">-</td>
+          <td class="label">رقم العرض</td>
+          <td class="value" id="printQuoteNumber">-</td>
+        </tr>
+        <tr>
+          <td class="label">موقع المشروع</td>
+          <td class="value" id="printProjectLocation">-</td>
+          <td class="label">الرقم المرجعي</td>
+          <td class="value" id="printReferenceNumber">-</td>
+        </tr>
+      </table>
+
+      <div style="height: 18px;"></div>
+
+      <table class="quote-items-table">
+        <thead>
+          <tr>
+            <th style="width: 8%;">الرقم</th>
+            <th style="width: 50%;">البيان (وصف الخدمة / المنتج)</th>
+            <th style="width: 12%;">الكمية</th>
+            <th style="width: 15%;">سعر الوحدة</th>
+            <th style="width: 15%;">الإجمالي</th>
+          </tr>
+        </thead>
+        <tbody id="printQuoteItemsBody">
+          <tr>
+            <td colspan="5">لا توجد أصناف في العرض</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="summary-wrap">
+        <table class="quote-summary-table">
+          <tr>
+            <td class="label">السعر الكلي</td>
+            <td class="value" id="printSubtotal">0.00 ريال</td>
+          </tr>
+          <tr>
+            <td class="label">الخصم</td>
+            <td class="value" id="printDiscount">0.00 ريال</td>
+          </tr>
+          <tr>
+            <td class="label">الضريبة المضافة (%<span id="printVatRate">15</span>)</td>
+            <td class="value" id="printVat">0.00 ريال</td>
+          </tr>
+          <tr class="total">
+            <td class="label">المبلغ الإجمالي</td>
+            <td class="value" id="printGrandTotal">0.00 ريال</td>
+          </tr>
+        </table>
+      </div>
+    </section>
+
+    <section class="pdf-sheet pdf-img-page pdf-break">
+      <img src="quote_page_6.png" alt="الشروط العامة للعرض">
+    </section>
+
+    <section class="pdf-sheet pdf-img-page">
+      <img src="quote_page_7.png" alt="الخاتمة والتواصل">
+    </section>
+  </div>
+
+  <script>
+    const STORAGE_KEYS = {
+      items: 'alwaala_saved_items',
+      quotes: 'alwaala_saved_quotes'
+    };
+
+    const state = {
+      savedItems: [],
+      savedQuotes: [],
+      currentQuoteItems: [],
+      editingItemId: null,
+      editingQuoteId: null,
+      currentSelectedSavedItemId: null
+    };
+
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const panels = document.querySelectorAll('.section-panel');
+
+    const itemForm = document.getElementById('itemForm');
+    const itemCode = document.getElementById('itemCode');
+    const itemName = document.getElementById('itemName');
+    const itemUnit = document.getElementById('itemUnit');
+    const itemQty = document.getElementById('itemQty');
+    const itemPrice = document.getElementById('itemPrice');
+    const resetItemForm = document.getElementById('resetItemForm');
+    const clearItemsBtn = document.getElementById('clearItemsBtn');
+    const itemsTableBody = document.getElementById('itemsTableBody');
+    const itemSubmitBtn = document.getElementById('itemSubmitBtn');
+
+    const quoteNumber = document.getElementById('quoteNumber');
+    const quoteDate = document.getElementById('quoteDate');
+    const clientName = document.getElementById('clientName');
+    const engineerName = document.getElementById('engineerName');
+    const clientPhone = document.getElementById('clientPhone');
+    const projectName = document.getElementById('projectName');
+    const referenceNumber = document.getElementById('referenceNumber');
+    const projectLocation = document.getElementById('projectLocation');
+    const vatRate = document.getElementById('vatRate');
+    const discountValue = document.getElementById('discountValue');
+    const quoteModeBadge = document.getElementById('quoteModeBadge');
+
+    const savedItemInput = document.getElementById('savedItemInput');
+    const savedItemsDatalist = document.getElementById('savedItemsDatalist');
+    const addSelectedItemBtn = document.getElementById('addSelectedItemBtn');
+
+    const saveQuoteBtn = document.getElementById('saveQuoteBtn');
+    const printQuoteBtn = document.getElementById('printQuoteBtn');
+    const resetQuoteFormBtn = document.getElementById('resetQuoteFormBtn');
+
+    const previewQuoteNumber = document.getElementById('previewQuoteNumber');
+    const previewQuoteDate = document.getElementById('previewQuoteDate');
+    const previewClientName = document.getElementById('previewClientName');
+    const previewProjectName = document.getElementById('previewProjectName');
+    const previewQuoteItemsBody = document.getElementById('previewQuoteItemsBody');
+    const previewSubtotal = document.getElementById('previewSubtotal');
+    const previewDiscount = document.getElementById('previewDiscount');
+    const previewAfterDiscount = document.getElementById('previewAfterDiscount');
+    const previewVatRateLabel = document.getElementById('previewVatRateLabel');
+    const previewVat = document.getElementById('previewVat');
+    const previewGrandTotal = document.getElementById('previewGrandTotal');
+
+    const reportsTableBody = document.getElementById('reportsTableBody');
+
+    function formatCurrency(value) {
+      const num = Number(value) || 0;
+      return num.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }) + ' ريال';
+    }
+
+    function formatNumberOnly(value) {
+      const num = Number(value) || 0;
+      return num.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function formatDateValue(dateValue) {
+      if (!dateValue) return '-';
+      const date = new Date(dateValue);
+      if (isNaN(date)) return dateValue;
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
+
+    function getTodayDateInputValue() {
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function generateItemCode() {
+      if (!state.savedItems.length) return 'ITM-001';
+      const numbers = state.savedItems.map(item => {
+        const match = String(item.code).match(/(\d+)$/);
+        return match ? parseInt(match[1], 10) : 0;
+      });
+      const nextNumber = Math.max(...numbers, 0) + 1;
+      return `ITM-${String(nextNumber).padStart(3, '0')}`;
+    }
+
+    function generateQuoteNumber() {
+      const currentYear = new Date().getFullYear();
+      if (!state.savedQuotes.length) return `QT-${currentYear}-0001`;
+
+      const matching = state.savedQuotes
+        .map(quote => String(quote.quoteNumber || ''))
+        .filter(num => num.startsWith(`QT-${currentYear}-`))
+        .map(num => {
+          const match = num.match(/(\d+)$/);
+          return match ? parseInt(match[1], 10) : 0;
+        });
+
+      const nextNumber = (matching.length ? Math.max(...matching) : 0) + 1;
+      return `QT-${currentYear}-${String(nextNumber).padStart(4, '0')}`;
+    }
+
+    function getStorage(key, fallback = []) {
+      try {
+        const value = localStorage.getItem(key);
+        return value ? JSON.parse(value) : fallback;
+      } catch {
+        return fallback;
+      }
+    }
+
+    function setStorage(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function switchTab(targetId) {
+      panels.forEach(panel => panel.classList.toggle('active', panel.id === targetId));
+      tabButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.target === targetId));
+    }
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => switchTab(btn.dataset.target));
+    });
+
+    function loadData() {
+      state.savedItems = getStorage(STORAGE_KEYS.items, []);
+      state.savedQuotes = getStorage(STORAGE_KEYS.quotes, []);
+    }
+
+    function saveItems() {
+      setStorage(STORAGE_KEYS.items, state.savedItems);
+    }
+
+    function saveQuotes() {
+      setStorage(STORAGE_KEYS.quotes, state.savedQuotes);
+    }
+
+    function resetItemInputs() {
+      state.editingItemId = null;
+      itemCode.value = generateItemCode();
+      itemName.value = '';
+      itemUnit.value = '';
+      itemQty.value = '';
+      itemPrice.value = '';
+      itemSubmitBtn.textContent = 'حفظ الصنف';
+    }
+
+    function resetSavedItemInput() {
+      state.currentSelectedSavedItemId = null;
+      savedItemInput.value = '';
+    }
+
+    function resetQuoteForm() {
+      state.editingQuoteId = null;
+      quoteNumber.value = generateQuoteNumber();
+      quoteDate.value = getTodayDateInputValue();
+      clientName.value = '';
+      engineerName.value = '';
+      clientPhone.value = '';
+      projectName.value = '';
+      referenceNumber.value = '';
+      projectLocation.value = '';
+      vatRate.value = 15;
+      discountValue.value = '';
+      state.currentQuoteItems = [];
+      quoteModeBadge.textContent = 'وضع الإضافة';
+      saveQuoteBtn.textContent = 'حفظ عرض السعر';
+      resetSavedItemInput();
+      renderQuotePreview();
+    }
+
+    function renderItemsTable() {
+      if (!state.savedItems.length) {
+        itemsTableBody.innerHTML = `<tr><td colspan="6" class="px-4 py-8 text-center text-slate-500">لا توجد أصناف محفوظة</td></tr>`;
+        return;
+      }
+
+      itemsTableBody.innerHTML = state.savedItems.map((item, index) => `
+        <tr class="${index % 2 === 0 ? 'bg-slate-950/30' : ''}">
+          <td class="px-4 py-4 font-bold">${item.code}</td>
+          <td class="px-4 py-4">${item.name}</td>
+          <td class="px-4 py-4">${item.unit}</td>
+          <td class="px-4 py-4">${item.qty}</td>
+          <td class="px-4 py-4 font-black text-white">${formatCurrency(item.price)}</td>
+          <td class="px-4 py-4">
+            <div class="flex flex-wrap gap-2">
+              <button class="edit-item-btn px-3 py-2 border border-slate-700 hover:border-blue-500 rounded-xl text-xs font-bold text-slate-200" data-id="${item.id}">تعديل</button>
+              <button class="delete-item-btn px-3 py-2 border border-slate-700 hover:border-red-600 rounded-xl text-xs font-bold text-slate-200" data-id="${item.id}">حذف</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      document.querySelectorAll('.delete-item-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.savedItems = state.savedItems.filter(item => item.id !== btn.dataset.id);
+          saveItems();
+          renderItemsTable();
+          renderSavedItemsDatalist();
+          resetItemInputs();
+          resetSavedItemInput();
+        });
+      });
+
+      document.querySelectorAll('.edit-item-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const item = state.savedItems.find(i => i.id === btn.dataset.id);
+          if (!item) return;
+          state.editingItemId = item.id;
+          itemCode.value = item.code;
+          itemName.value = item.name;
+          itemUnit.value = item.unit;
+          itemQty.value = item.qty;
+          itemPrice.value = item.price;
+          itemSubmitBtn.textContent = 'حفظ التعديل';
+          switchTab('items-section');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      });
+    }
+
+    function renderSavedItemsDatalist() {
+      if (!state.savedItems.length) {
+        savedItemsDatalist.innerHTML = '';
+        return;
+      }
+
+      savedItemsDatalist.innerHTML = state.savedItems.map(item => {
+        const label = `${item.code} - ${item.name}`;
+        return `<option value="${label}"></option>`;
+      }).join('');
+    }
+
+    function findSavedItemByInputValue(value) {
+      const trimmed = value.trim();
+      if (!trimmed) return null;
+      return state.savedItems.find(item => `${item.code} - ${item.name}` === trimmed) || null;
+    }
+
+    function bindPreviewRowActions() {
+      document.querySelectorAll('.remove-preview-item').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.currentQuoteItems = state.currentQuoteItems.filter(item => item.localId !== btn.dataset.id);
+          renderQuotePreview();
+        });
+      });
+
+      document.querySelectorAll('.preview-qty').forEach(input => {
+        input.addEventListener('input', () => {
+          const item = state.currentQuoteItems.find(i => i.localId === input.dataset.id);
+          if (!item) return;
+          item.qty = Number(input.value) || 0;
+          renderQuotePreview();
+        });
+      });
+
+      document.querySelectorAll('.preview-price').forEach(input => {
+        input.addEventListener('input', () => {
+          const item = state.currentQuoteItems.find(i => i.localId === input.dataset.id);
+          if (!item) return;
+          item.price = Number(input.value) || 0;
+          renderQuotePreview();
+        });
+      });
+    }
+
+    function renderPrintTable(subtotal, discount, afterDiscount, vat, grandTotal) {
+      document.getElementById('printQuoteDate').textContent = quoteDate.value ? formatDateValue(quoteDate.value) : '-';
+      document.getElementById('printEngineerName').textContent = engineerName.value.trim() || '-';
+      document.getElementById('printClientName').textContent = clientName.value.trim() || '-';
+      document.getElementById('printClientPhone').textContent = clientPhone.value.trim() || '-';
+      document.getElementById('printProjectName').textContent = projectName.value.trim() || '-';
+      document.getElementById('printQuoteNumber').textContent = quoteNumber.value.trim() || '-';
+      document.getElementById('printProjectLocation').textContent = projectLocation.value.trim() || '-';
+      document.getElementById('printReferenceNumber').textContent = referenceNumber.value.trim() || '-';
+      document.getElementById('printSubtotal').textContent = formatCurrency(subtotal);
+      document.getElementById('printDiscount').textContent = formatCurrency(discount);
+      document.getElementById('printVatRate').textContent = Number(vatRate.value) || 0;
+      document.getElementById('printVat').textContent = formatCurrency(vat);
+      document.getElementById('printGrandTotal').textContent = formatCurrency(grandTotal);
+
+      const printBody = document.getElementById('printQuoteItemsBody');
+
+      if (!state.currentQuoteItems.length) {
+        printBody.innerHTML = `<tr><td colspan="5">لا توجد أصناف في العرض</td></tr>`;
+        return;
+      }
+
+      printBody.innerHTML = state.currentQuoteItems.map((item, index) => `
+        <tr>
+          <td>${index + 1}</td>
+          <td class="desc">${item.name}</td>
+          <td>${item.qty}</td>
+          <td>${formatNumberOnly(item.price)}</td>
+          <td>${formatNumberOnly(item.qty * item.price)}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderQuotePreview() {
+      previewQuoteNumber.textContent = quoteNumber.value.trim() || '-';
+      previewQuoteDate.textContent = quoteDate.value ? formatDateValue(quoteDate.value) : '-';
+      previewClientName.textContent = clientName.value.trim() || '-';
+      previewProjectName.textContent = projectName.value.trim() || '-';
+
+      const subtotal = state.currentQuoteItems.reduce((sum, item) => sum + ((Number(item.qty) || 0) * (Number(item.price) || 0)), 0);
+      const discount = Number(discountValue.value) || 0;
+      const afterDiscount = Math.max(subtotal - discount, 0);
+      const vat = afterDiscount * ((Number(vatRate.value) || 0) / 100);
+      const grandTotal = afterDiscount + vat;
+
+      previewVatRateLabel.textContent = Number(vatRate.value) || 0;
+      previewSubtotal.textContent = formatCurrency(subtotal);
+      previewDiscount.textContent = formatCurrency(discount);
+      previewAfterDiscount.textContent = formatCurrency(afterDiscount);
+      previewVat.textContent = formatCurrency(vat);
+      previewGrandTotal.textContent = formatCurrency(grandTotal);
+
+      if (!state.currentQuoteItems.length) {
+        previewQuoteItemsBody.innerHTML = `<tr><td colspan="7" class="px-4 py-8 text-center text-slate-500">لا توجد أصناف في العرض</td></tr>`;
+      } else {
+        previewQuoteItemsBody.innerHTML = state.currentQuoteItems.map((item, index) => `
+          <tr class="${index % 2 === 0 ? 'bg-slate-950/30' : ''}">
+            <td class="px-4 py-4 font-bold">${item.code}</td>
+            <td class="px-4 py-4">${item.name}</td>
+            <td class="px-4 py-4">${item.unit}</td>
+            <td class="px-4 py-4">
+              <input type="number" step="0.01" value="${item.qty}" data-id="${item.localId}" class="preview-qty w-24 bg-[#0F172A] border border-slate-700 rounded-lg px-3 py-2 text-white">
+            </td>
+            <td class="px-4 py-4">
+              <input type="number" step="0.01" value="${item.price}" data-id="${item.localId}" class="preview-price w-28 bg-[#0F172A] border border-slate-700 rounded-lg px-3 py-2 text-white">
+            </td>
+            <td class="px-4 py-4 font-black text-white">${formatCurrency(item.qty * item.price)}</td>
+            <td class="px-4 py-4">
+              <button class="remove-preview-item px-3 py-2 border border-slate-700 hover:border-red-600 rounded-xl text-xs font-bold text-slate-200" data-id="${item.localId}">حذف</button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      bindPreviewRowActions();
+      renderPrintTable(subtotal, discount, afterDiscount, vat, grandTotal);
+    }
+
+    function renderReports() {
+      if (!state.savedQuotes.length) {
+        reportsTableBody.innerHTML = `<tr><td colspan="8" class="px-4 py-8 text-center text-slate-500">لا توجد عروض أسعار محفوظة</td></tr>`;
+        return;
+      }
+
+      reportsTableBody.innerHTML = state.savedQuotes.map((quote, index) => `
+        <tr class="${index % 2 === 0 ? 'bg-slate-950/30' : ''}">
+          <td class="px-4 py-4 font-bold">${quote.quoteNumber || '-'}</td>
+          <td class="px-4 py-4">${quote.clientName || '-'}</td>
+          <td class="px-4 py-4">${quote.projectName || '-'}</td>
+          <td class="px-4 py-4">${quote.quoteDate ? formatDateValue(quote.quoteDate) : '-'}</td>
+          <td class="px-4 py-4">${quote.items.length}</td>
+          <td class="px-4 py-4">${formatCurrency(quote.discount || 0)}</td>
+          <td class="px-4 py-4 font-black text-white">${formatCurrency(quote.grandTotal)}</td>
+          <td class="px-4 py-4">
+            <div class="flex flex-wrap gap-2">
+              <button class="load-quote-btn px-3 py-2 border border-slate-700 hover:border-red-600 rounded-xl text-xs font-bold text-slate-200" data-id="${quote.id}">
+                فتح
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      document.querySelectorAll('.load-quote-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const quote = state.savedQuotes.find(q => q.id === btn.dataset.id);
+          if (!quote) return;
+
+          state.editingQuoteId = quote.id;
+          quoteNumber.value = quote.quoteNumber || '';
+          quoteDate.value = quote.quoteDate || getTodayDateInputValue();
+          clientName.value = quote.clientName || '';
+          engineerName.value = quote.engineerName || '';
+          clientPhone.value = quote.clientPhone || '';
+          projectName.value = quote.projectName || '';
+          referenceNumber.value = quote.referenceNumber || '';
+          projectLocation.value = quote.projectLocation || '';
+          vatRate.value = quote.vatRate ?? 15;
+          discountValue.value = quote.discount ?? '';
+
+          state.currentQuoteItems = (quote.items || []).map(item => ({
+            ...item,
+            localId: crypto.randomUUID()
+          }));
+
+          quoteModeBadge.textContent = 'وضع التعديل';
+          saveQuoteBtn.textContent = 'حفظ التعديلات';
+          resetSavedItemInput();
+          renderQuotePreview();
+          switchTab('quotes-section');
+        });
+      });
+    }
+
+    itemForm.addEventListener('submit', e => {
+      e.preventDefault();
+
+      if (!itemName.value.trim()) {
+        alert('أدخل اسم الصنف على الأقل');
+        return;
+      }
+
+      const payload = {
+        code: itemCode.value.trim(),
+        name: itemName.value.trim(),
+        unit: itemUnit.value.trim() || '-',
+        qty: Number(itemQty.value) || 0,
+        price: Number(itemPrice.value) || 0
+      };
+
+      if (state.editingItemId) {
+        const targetIndex = state.savedItems.findIndex(item => item.id === state.editingItemId);
+        if (targetIndex !== -1) {
+          state.savedItems[targetIndex] = { ...state.savedItems[targetIndex], ...payload };
+        }
+      } else {
+        state.savedItems.unshift({ id: crypto.randomUUID(), ...payload });
+      }
+
+      saveItems();
+      renderItemsTable();
+      renderSavedItemsDatalist();
+      resetItemInputs();
+    });
+
+    resetItemForm.addEventListener('click', resetItemInputs);
+
+    clearItemsBtn.addEventListener('click', () => {
+      if (!confirm('هل تريد حذف جميع الأصناف المحفوظة؟')) return;
+      state.savedItems = [];
+      saveItems();
+      renderItemsTable();
+      renderSavedItemsDatalist();
+      resetItemInputs();
+      resetSavedItemInput();
+    });
+
+    savedItemInput.addEventListener('input', () => {
+      const matched = findSavedItemByInputValue(savedItemInput.value);
+      state.currentSelectedSavedItemId = matched ? matched.id : state.currentSelectedSavedItemId;
+    });
+
+    savedItemInput.addEventListener('change', () => {
+      const matched = findSavedItemByInputValue(savedItemInput.value);
+      state.currentSelectedSavedItemId = matched ? matched.id : state.currentSelectedSavedItemId;
+    });
+
+    addSelectedItemBtn.addEventListener('click', () => {
+      let matched = findSavedItemByInputValue(savedItemInput.value);
+
+      if (!matched && state.currentSelectedSavedItemId) {
+        matched = state.savedItems.find(item => item.id === state.currentSelectedSavedItemId) || null;
+      }
+
+      if (!matched) {
+        alert('اختر صنفًا محفوظًا أولًا من القائمة');
+        return;
+      }
+
+      const originalLabel = `${matched.code} - ${matched.name}`;
+      const typedValue = savedItemInput.value.trim();
+
+      let finalName = matched.name;
+      if (typedValue && typedValue !== originalLabel) {
+        finalName = typedValue;
+      }
+
+      state.currentQuoteItems.push({
+        localId: crypto.randomUUID(),
+        code: matched.code,
+        name: finalName,
+        unit: matched.unit,
+        qty: matched.qty,
+        price: matched.price
+      });
+
+      renderQuotePreview();
+    });
+
+    [quoteDate, clientName, engineerName, clientPhone, projectName, referenceNumber, projectLocation, vatRate, discountValue].forEach(input => {
+      input.addEventListener('input', renderQuotePreview);
+    });
+
+    saveQuoteBtn.addEventListener('click', () => {
+      if (!clientName.value.trim()) {
+        alert('اسم العميل مطلوب');
+        clientName.focus();
+        return;
+      }
+
+      if (!projectName.value.trim()) {
+        alert('اسم المشروع مطلوب');
+        projectName.focus();
+        return;
+      }
+
+      if (!clientPhone.value.trim()) {
+        alert('رقم الجوال مطلوب');
+        clientPhone.focus();
+        return;
+      }
+
+      if (!referenceNumber.value.trim()) {
+        alert('الرقم المرجعي مطلوب');
+        referenceNumber.focus();
+        return;
+      }
+
+      if (!projectLocation.value.trim()) {
+        alert('موقع المشروع مطلوب');
+        projectLocation.focus();
+        return;
+      }
+
+      const subtotal = state.currentQuoteItems.reduce((sum, item) => sum + ((Number(item.qty) || 0) * (Number(item.price) || 0)), 0);
+      const discount = Number(discountValue.value) || 0;
+      const afterDiscount = Math.max(subtotal - discount, 0);
+      const vat = afterDiscount * ((Number(vatRate.value) || 0) / 100);
+      const grandTotal = afterDiscount + vat;
+
+      const payload = {
+        id: state.editingQuoteId || crypto.randomUUID(),
+        quoteNumber: quoteNumber.value.trim(),
+        quoteDate: quoteDate.value,
+        clientName: clientName.value.trim(),
+        engineerName: engineerName.value.trim(),
+        clientPhone: clientPhone.value.trim(),
+        projectName: projectName.value.trim(),
+        referenceNumber: referenceNumber.value.trim(),
+        projectLocation: projectLocation.value.trim(),
+        vatRate: Number(vatRate.value) || 0,
+        discount,
+        subtotal,
+        afterDiscount,
+        vat,
+        grandTotal,
+        items: state.currentQuoteItems.map(item => ({
+          code: item.code,
+          name: item.name,
+          unit: item.unit,
+          qty: item.qty,
+          price: item.price
+        }))
+      };
+
+      if (state.editingQuoteId) {
+        const quoteIndex = state.savedQuotes.findIndex(q => q.id === state.editingQuoteId);
+        if (quoteIndex !== -1) {
+          state.savedQuotes[quoteIndex] = payload;
+          alert('تم تعديل عرض السعر بنجاح');
+        }
+      } else {
+        state.savedQuotes.unshift(payload);
+        alert('تم حفظ عرض السعر بنجاح');
+      }
+
+      saveQuotes();
+      renderReports();
+      resetQuoteForm();
+    });
+
+    printQuoteBtn.addEventListener('click', () => {
+      if (!clientName.value.trim() || !projectName.value.trim() || !clientPhone.value.trim() || !referenceNumber.value.trim() || !projectLocation.value.trim()) {
+        alert('يرجى تعبئة الحقول المطلوبة قبل الطباعة');
+        return;
+      }
+
+      renderQuotePreview();
+      window.print();
+    });
+
+    resetQuoteFormBtn.addEventListener('click', resetQuoteForm);
+
+    function init() {
+      loadData();
+      renderItemsTable();
+      renderSavedItemsDatalist();
+      renderReports();
+      resetItemInputs();
+      resetQuoteForm();
+    }
+
+    init();
+  </script>
+</body>
+</html>
